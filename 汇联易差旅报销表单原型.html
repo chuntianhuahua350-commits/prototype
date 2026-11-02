@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汇联易差旅与报销表单原型</title>
+<style>
+:root{--blue:#1765e8;--bg:#f4f5f8;--line:#e8eaee;--text:#202833}
+*{box-sizing:border-box}
+body{margin:0;background:#eef0f4;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+.wrapper{max-width:1280px;margin:0 auto;padding:24px 20px 48px}
+h1{font-size:22px;margin:0 0 8px}
+.subtitle{font-size:13px;color:#778191;margin-bottom:16px}
+.menus,.tabs,.roles,.doc-tabs,.tpl-tabs{display:flex;width:100%;gap:5px;background:#e8ebf0;padding:4px;border-radius:12px}
+.menus{margin-bottom:16px}
+.tabs{margin-bottom:10px}
+.roles,.doc-tabs,.tpl-tabs{margin-bottom:16px}
+.menu,.tab,.role,.doc-tab,.tpl-tab{flex:1;border:0;border-radius:9px;padding:11px 8px;background:transparent;color:#64748b;font-size:14px;font-weight:600;cursor:pointer}
+.menu.active,.tab.active,.role.active,.doc-tab.active,.tpl-tab.active{background:#fff;color:var(--blue);box-shadow:0 1px 4px #00000012}
+.layout{display:grid;gap:16px}
+@media(min-width:860px){
+  .layout{align-items:start}
+  .layout,.tabs,.roles{grid-template-columns:430px 1fr}
+  .tabs,.roles{display:grid;gap:16px;background:transparent;padding:0}
+  .tabs .tab,.roles .role{background:#e8ebf0}
+  .tabs .tab.active,.roles .role.active{background:#fff}
+}
+.phone{width:100%;max-width:430px;margin:0 auto;background:var(--bg);border:1px solid #e2e5eb;border-radius:22px;overflow:visible;box-shadow:0 8px 28px #15233a12}
+.nav{height:52px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #f0f0f0;font-size:17px;font-weight:650}
+.nav span:first-child,.nav span:last-child{font-size:21px;font-weight:400}
+.user{background:#fff;padding:15px 18px 17px;display:flex;align-items:center;gap:10px}
+.avatar{height:35px;width:35px;border-radius:50%;background:#e7efff;color:#2766cf;display:grid;place-items:center;font-weight:700}
+.avatar.approver{background:#eaf7ef;color:#18734a}
+.section-title{background:#fff;padding:8px 16px 14px;font-size:18px;font-weight:700}
+.form-card{background:#fff;margin:10px 10px 0;border-radius:13px;padding:3px 16px}
+.field{padding:14px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.label{font-size:14px;color:#343a43;margin-bottom:8px}
+.required{color:#e56c7a;margin-right:3px}
+.value{font-size:14px;line-height:1.55}
+.placeholder{color:#9ca3af}
+.hint{font-size:11px;color:#9299a3;line-height:1.55;margin-top:6px}
+.qtip{position:relative;display:inline-flex;margin-right:6px;vertical-align:middle}
+.qtip .mark{width:16px;height:16px;border-radius:50%;border:1px solid #1765e8;color:#1765e8;font-size:11px;font-weight:700;display:grid;place-items:center;cursor:help;background:#fff}
+.qtip .bubble{display:none;position:absolute;z-index:8;left:0;top:22px;width:min(280px,70vw);background:#263243;color:#fff;border-radius:8px;padding:10px 12px;font-size:12px;font-weight:400;line-height:1.55;text-align:left}
+.qtip .bubble b{display:block;margin:8px 0 2px}
+.qtip .bubble b:first-child{margin-top:0}
+.qtip:hover .bubble,.qtip:focus-within .bubble{display:block}
+.readonly{color:#5c6775}
+select{width:100%;border:1px solid #dfe4eb;border-radius:9px;background:#fff;padding:11px 12px;color:#263243;font-size:13px;outline:none}
+.system-box{background:#fafbfc;border:1px solid #e6e9ef;border-radius:10px;padding:10px 11px}
+.tag{font-size:10px;color:#18734a;background:#eaf7ef;border-radius:4px;padding:4px 7px;white-space:nowrap;font-weight:500}
+.file{display:flex;align-items:center;gap:10px}
+.file-icon{width:35px;height:40px;flex-shrink:0;border-radius:5px;background:#fff0ef;color:#d64b48;display:grid;place-items:center;font-size:10px;font-weight:800;border:1px solid #f6d8d6}
+.file-icon.xlsx{background:#eaf7ee;color:#21834c;border-color:#d1ead8}
+.file-info{flex:1;min-width:0}
+.file-name{font-size:12px;font-weight:600;overflow-wrap:anywhere}
+.file-meta{font-size:10px;color:#98a0aa;margin-top:4px;line-height:1.4}
+.system-note{font-size:11px;color:#8b929d;margin-top:8px;line-height:1.55}
+.notice{font-size:11px;color:#687587;background:#f4f7fb;padding:10px;border-radius:8px;line-height:1.6;margin:12px 12px 0}
+.manual-upload{border:1px dashed #cbd2dc;border-radius:9px;padding:17px;text-align:center;color:#8b95a2;font-size:12px;background:#fcfcfd}
+.manual-upload .plus{font-size:25px;line-height:1.1;margin-bottom:4px}
+.bottom{background:#fff;padding:13px 15px 17px;margin-top:12px}
+.primary{width:100%;background:var(--blue);color:#fff;border:0;border-radius:8px;padding:14px;font-size:14px;font-weight:600;cursor:pointer}
+.primary:active{background:#0d55cb}
+.hidden{display:none!important}
+.config{background:#fff;border:1px solid #e2e5eb;border-radius:14px;padding:16px}
+.config h2{font-size:16px;margin:0 0 6px}
+.config p{font-size:12px;color:#687587;line-height:1.6;margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid #eef0f4;text-align:left;padding:10px 10px;vertical-align:top;line-height:1.5}
+.config th:nth-child(1),.config td:nth-child(1),.config th:nth-child(2),.config td:nth-child(2),.config th:nth-child(3),.config td:nth-child(3){white-space:nowrap}
+.md-doc{background:#fff;border:1px solid #e2e5eb;border-radius:14px;padding:8px 28px 32px}
+.md-doc h1{font-size:22px;margin:18px 0 10px}
+.md-doc h2{font-size:18px;margin:22px 0 8px;padding-top:12px;border-top:1px solid #eef0f4}
+.md-doc h3{font-size:15px;margin:16px 0 6px}
+.md-doc h4{font-size:14px;margin:12px 0 6px}
+.md-doc p,.md-doc li{font-size:14px;line-height:1.7}
+.md-doc ul,.md-doc ol{margin:8px 0;padding-left:22px}
+.md-doc pre{background:#f6f8fb;border:1px solid #e6eaf1;border-radius:8px;padding:12px 14px;overflow:auto;font-size:12px;line-height:1.55}
+.md-doc code{font-size:12px}
+.tpl-layout{display:grid;gap:16px}
+@media(min-width:860px){.tpl-layout{grid-template-columns:240px 1fr;align-items:start}}
+.tpl-side{display:grid;gap:8px}
+.tpl-side button{text-align:left;border:1px solid #e2e5eb;background:#fff;border-radius:10px;padding:12px 14px;cursor:pointer;font-size:14px;font-weight:600;color:#3c4654}
+.tpl-side button.active{border-color:#1765e8;color:#1765e8;background:#f5f8ff}
+.tpl-side button span{display:block;margin-top:4px;font-size:12px;font-weight:400;color:#778191}
+.pdf-frame{width:100%;height:760px;border:1px solid #e2e5eb;border-radius:12px;background:#fff}
+.tpl-view{background:#fff;border:1px solid #e2e5eb;border-radius:14px;padding:16px}
+.tpl-view h2{font-size:16px;margin:0 0 8px}
+.tpl-view p{font-size:13px;color:#687587;line-height:1.6;margin:0 0 12px}
+th{color:#778191;font-weight:600}
+code{font-family:ui-monospace,Consolas,monospace;font-size:11px;background:#f4f6fa;padding:1px 4px;border-radius:4px}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.docs{margin-top:16px}
+.docs ol{margin:8px 0 12px;padding-left:18px}
+.docs li{font-size:12px;color:#3c4654;line-height:1.55;margin:4px 0}
+.sample-btn{width:100%;margin-top:4px;background:#fff;color:var(--blue);border:1px solid #c9d8f8;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer}
+.sample-btn:hover{background:#f5f8ff}
+.sample-list{margin-top:8px;display:grid;gap:6px}
+.sample-list a{display:block;background:#f7f9fc;border:1px solid #e6eaf1;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.45}
+.flow{background:#fff;border:1px solid #e2e5eb;border-radius:14px;padding:16px;margin-bottom:16px}
+.flow .lead{font-size:12px;color:#687587;line-height:1.6;margin:6px 0 14px}
+.flow-title{font-size:16px;font-weight:700;margin:0}
+.step{margin-top:8px;background:#f7f9fc;border:1px solid #e6eaf1;border-radius:10px;overflow:hidden}
+.step-head{display:flex;align-items:center;gap:10px;padding:8px 12px}
+.step-title{font-size:14px;font-weight:650;flex:1}
+.step-no{width:28px;height:28px;border-radius:50%;background:#1765e8;color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0}
+.step-body p,.step-body li{font-size:12px;line-height:1.6;color:#3c4654;margin:0}
+.step-body ol{margin:0;padding-left:18px}
+.step-body li{margin:6px 0}
+.step-body li b{color:#202833}
+.step-body{border-top:1px solid #e6eaf1;padding:10px 12px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#263243;color:white;padding:10px 16px;border-radius:20px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>汇联易表单调整原型</h1>
+  <div class="subtitle">原型看填写和审批页面，流程图看步骤，需求文档看三份说明，附件模板看 PDF 和 Excel。</div>
+  <div class="menus" role="tablist">
+    <button class="menu active" data-menu="proto" type="button">原型</button>
+    <button class="menu" data-menu="flow" type="button">流程图</button>
+    <button class="menu" data-menu="docs" type="button">需求文档</button>
+    <button class="menu" data-menu="templates" type="button">附件模板</button>
+  </div>
+
+  <div id="panel-flow" class="panel hidden">
+  <section class="flow">
+    <div class="flow-block">
+      <h2 class="flow-title">差旅申请单流程</h2>
+<p class="lead">没选工单就按普通出差提交，后面的回填和入库都不做。客户名称用表单上原有字段，系统不改。</p>
+
+    <div class="step">
+      <div class="step-head"><span class="step-no">1</span><span class="step-title">售后</span></div>
+      <div class="step-body">
+<p>在汇联易打开差旅申请单，填写日期、事由、客户名称。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">2</span><span class="step-title">关联工单</span></div>
+      <div class="step-body">
+<ol>
+          <li><b>按汇联易文档格式开发老系统接口。</b>售后一点下拉，汇联易就来调我们。返回格式以<a href="https://opendocs.huilianyi.com/callback/business-data/enumeration/user_out_enumeration.html" target="_blank" rel="noopener">外部值列表</a>为准：<code>messageKey</code> 显示工单号和客户名称，<code>value</code> 是工单号，<code>remark</code> 放设备编号。接口编码 <code>OUT_ENUMERATION</code>。</li>
+          <li><b>用当前申请人匹配工单处理人。</b>现在可以这样做：回调里的 <code>employeeID</code> 就是当前申请人。老系统处理人在 <code>apply_and_user.user_name</code>。开发先确认这两个是不是同一个工号。是，就只返回这个人作为处理人的工单。不是，就在对接服务自己的库建一张映射表，把汇联易工号对应到老系统 <code>user_name</code>，上线前导入售后人员。不要用姓名匹配。建单人不是处理人的工单不出现。</li>
+          <li><b>商务在汇联易后台配置这个接口。</b>操作说明在同一篇文档：先到「系统管理 → 值列表 → 外部值列表」新建「售后工单」，再到「系统管理 → 其他设置 → 外部接口回调」新增回调，<code>API_CODE</code> 填 <code>OUT_ENUMERATION</code>，地址填开发给的外网地址。地址规则见<a href="https://opendocs.huilianyi.com/callback.html" target="_blank" rel="noopener">回调模式</a>。差旅申请单上的「关联工单」选外部值列表、先按单选，绑这个值列表。</li>
+        </ol>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">3</span><span class="step-title">提交</span></div>
+      <div class="step-body">
+<p>售后点提交。选了工单时，提交前只检查工单是否存在、当前申请人是不是处理人。附件这时还没有，不拦截。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">4</span><span class="step-title">汇联易回调</span></div>
+      <div class="step-body">
+<p>提交成功后汇联易推送 <code>TRAVEL_APPLICATION_SUBMIT</code>。开发按<a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener">差旅申请提交</a>做接收接口。商务在同一处「外部接口回调」再加一条，<code>API_CODE</code> 填 <code>TRAVEL_APPLICATION_SUBMIT</code>，配置方式见<a href="https://opendocs.huilianyi.com/callback.html" target="_blank" rel="noopener">回调模式</a>。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">5</span><span class="step-title">我们接口接收回调</span></div>
+      <div class="step-body">
+<p>外层 <code>message</code> 是加密的，用<a href="https://opendocs.huilianyi.com/callback.html#%E5%8A%A0%E8%A7%A3%E5%AF%86%E5%A4%84%E7%90%86" target="_blank" rel="noopener">官方 Java 解密库</a>解开。解开后的正文就是<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>。从里面取申请单号 <code>businessCode</code>、申请人 <code>employeeID</code>，以及「关联工单」字段里的工单号。先返回成功，再做后面的回填。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">6</span><span class="step-title">调用汇联易接口回填</span></div>
+      <div class="step-body">
+<p>工单基本信息和设备信息用<a href="https://opendocs.huilianyi.com/implement/business-data/application/update-application-custom-form-value.html" target="_blank" rel="noopener">申请单自定义控件值更新</a>：工单类型、计划工期、现场描述、设备编号、设备名称、设备型号。工单 PDF 用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，挂到「工单信息附件」，<code>entityType=1001</code>。字段都靠商务提供的 <code>fieldCode</code>。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">7</span><span class="step-title">工单和差旅申请单的关联入库</span></div>
+      <div class="step-body">
+<p>对接服务自己的库记下：申请单号、工单号、已上传附件的 OID。报销单提交时用申请单号找到这张工单，再回填报销单上的工单信息和打卡 Excel。单据撤回后重新提交，按新工单覆盖这条记录。</p>      </div>
+    </div>    </div>
+  </section>
+
+  <section class="flow">
+    <div class="flow-block">
+      <h2 class="flow-title">差旅报销单流程</h2>
+<p class="lead">售后不在报销单上再选工单。工单只从已关联的差旅申请单带过来。客户名称仍用报销单上原有字段，系统不改。</p>
+
+    <div class="step">
+      <div class="step-head"><span class="step-no">1</span><span class="step-title">售后</span></div>
+      <div class="step-body">
+<p>打开差旅报销单，上传发票、车票。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">2</span><span class="step-title">关联申请单</span></div>
+      <div class="step-body">
+<p>这是汇联易现有字段，不用新增。售后选之前提交的那张差旅申请单。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">3</span><span class="step-title">提交</span></div>
+      <div class="step-body">
+<p>售后点提交。填写页上看不到工单字段、工单 PDF 和打卡 Excel。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">4</span><span class="step-title">汇联易调用回调接口</span></div>
+      <div class="step-body">
+<p>提交成功后汇联易推送 <code>EXPENSE_REPORT_SUBMIT</code>。开发按<a href="https://opendocs.huilianyi.com/callback/business-data/expense-report/submit.html" target="_blank" rel="noopener">报销单提交</a>做接收接口。商务在「外部接口回调」增加这一条，配置方式见<a href="https://opendocs.huilianyi.com/callback.html" target="_blank" rel="noopener">回调模式</a>。外层 <code>message</code> 用<a href="https://opendocs.huilianyi.com/callback.html#%E5%8A%A0%E8%A7%A3%E5%AF%86%E5%A4%84%E7%90%86" target="_blank" rel="noopener">官方 Java 解密库</a>解开，正文是<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/query-expense-report-detail.html" target="_blank" rel="noopener">报销单详情</a>。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">5</span><span class="step-title">判断关联的申请单是否已有工单</span></div>
+      <div class="step-body">
+<p>从报销单详情的 <code>applicationList</code> 取出关联的申请单号，再查<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>，或查上一步入库的申请单号和工单号。没有关联申请单，或申请单上没有工单号：结束，不回填，也不提醒。</p>      </div>
+    </div>
+    <div class="step">
+      <div class="step-head"><span class="step-no">6</span><span class="step-title">有工单则回填</span></div>
+      <div class="step-body">
+<p>工单基础信息和设备信息用<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/update-expense-report-custom-form-value.html" target="_blank" rel="noopener">报销单自定义控件值更新</a>：工单号、工单类型、计划工期、现场描述、设备编号、设备名称、设备型号。两份附件用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，<code>entityType=1002</code>：工单 PDF 进「工单信息附件」，打卡 Excel 进「打卡记录附件」。打卡只取报销申请人本人，日期用申请单的出发日到返回日。字段都用报销单自己的 <code>fieldCode</code>。</p>      </div>
+    </div>    </div>
+  </section>
+  </div>
+
+  <div id="panel-proto" class="panel">
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-page="travel" type="button">① 差旅申请单</button>
+    <button class="tab" data-page="expense" type="button">② 差旅报销单</button>
+  </div>
+  <div class="roles" role="tablist">
+    <button class="role active" data-role="staff" type="button">售后填写</button>
+    <button class="role" data-role="approver" type="button">审批人查看</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <section id="travel-staff">
+        <div class="phone">
+          <div class="nav"><span>‹</span><span>差旅申请单</span><span>•••</span></div>
+          <div class="user"><div class="avatar">梁</div><span>梁泳仪 · 售后</span></div>
+          <div class="section-title">差旅申请单</div>
+          <div class="form-card">
+            <div class="field"><div class="label"><span class="required">*</span>公司</div><div class="value">深圳弓叶具身机器人有限公司</div></div>
+            <div class="field"><div class="label"><span class="required">*</span>部门</div><div class="value">人工智能研究院</div></div>
+            <div class="field"><div class="label"><span class="required">*</span>开始日期－结束日期</div><div class="value" style="display:flex;justify-content:space-between"><span>2026-11-03</span><span class="placeholder">—</span><span>2026-11-05</span></div></div>
+            <div class="field">
+              <div class="label"><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号，客户、设备和 PDF 在提交之后才写入，给审批人看。</span></span>关联工单</div>
+              <select id="work-order">
+                <option value="">不关联工单</option>
+                <option value="WO20261102001">WO20261102001 · 昆明客户设备维护</option>
+                <option value="WO20261102002">WO20261102002 · 深圳设备调试</option>
+              </select>
+            </div>
+            <div class="field"><div class="label">出差城市</div><div class="value placeholder">＋ 添加</div></div>
+            <div class="field"><div class="label">出差公司</div><div class="value placeholder">请输入</div></div>
+            <div class="field"><div class="label">拜访对象</div><div class="value placeholder">请输入拜访人员</div></div>
+            <div class="field"><div class="label"><span class="required">*</span>出差事由</div><div class="value">前往客户现场处理设备问题</div><div class="hint">售后自己填写，系统不改这个字段。</div></div>
+          </div>
+          <div class="notice">点提交后汇联易才生成单号。系统在提交回调里，按这个单号把 PDF 挂到「工单信息附件」。</div>
+          <div class="bottom"><button class="primary" id="travel-submit" type="button">提交</button></div>
+        </div>
+      </section>
+
+      <section id="travel-approver" class="hidden">
+        <div class="phone">
+          <div class="nav"><span>‹</span><span>差旅申请单</span><span>•••</span></div>
+          <div class="user"><div class="avatar approver">王</div><span>王主管 · 审批人</span></div>
+          <div class="section-title">待审批 · 差旅申请单</div>
+          <div class="form-card">
+            <div class="field"><div class="label">申请人</div><div class="value">梁泳仪</div></div>
+            <div class="field"><div class="label">出差日期</div><div class="value">2026-11-03 至 2026-11-05</div></div>
+            <div class="field"><div class="label">出差事由</div><div class="value">前往客户现场处理设备问题</div></div>
+            <div class="field"><div class="label">关联工单</div><div class="value" id="ap-order">未关联</div></div>
+            <div id="ap-system">
+              <div class="field"><div class="label">工单类型</div><div class="value readonly">售后维护</div></div>
+              <div class="field"><div class="label">设备编号</div><div class="value readonly" id="ap-device"></div></div>
+              <div class="field"><div class="label">设备名称</div><div class="value readonly" id="ap-device-name"></div></div>
+              <div class="field"><div class="label">设备型号</div><div class="value readonly" id="ap-device-model"></div></div>
+              <div class="field"><div class="label">计划工期</div><div class="value readonly">3 天</div></div>
+              <div class="field"><div class="label">现场描述</div><div class="value readonly" id="ap-desc"></div></div>
+              <div class="field">
+                <div class="label">工单信息附件</div>
+                <div class="system-box">
+                  <div class="file">
+                    <div class="file-icon">PDF</div>
+                    <div class="file-info">
+                      <div class="file-name" id="ap-pdf"></div>
+                      <div class="file-meta">提交后由系统挂上 · 审批人只查看</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="ap-empty" class="notice hidden">这张申请单没有关联工单，没有工单字段，也没有工单 PDF。</div>
+          </div>
+          <div class="notice">以上内容在售后点提交之后才写入。审批人打开时若刚提交完，刷新即可看到。</div>
+        </div>
+      </section>
+
+      <section id="expense-staff" class="hidden">
+        <div class="phone">
+          <div class="nav"><span>‹</span><span>差旅报销单</span><span>•••</span></div>
+          <div class="notice">差旅报销单仅适用于出差产生的交通、住宿、补助费用。</div>
+          <div class="user"><div class="avatar">梁</div><span>梁泳仪 · 售后</span></div>
+          <div class="section-title">差旅报销单</div>
+          <div class="form-card">
+            <div class="field">
+              <div class="label"><span class="required">*</span>关联申请单</div>
+              <select id="linked-application">
+                <option value="linked">CLSQ202611020031 · 11月3日—11月5日 · 已关联工单</option>
+                <option value="none">CLSQ202610180012 · 未关联工单</option>
+              </select>
+              <div class="hint">这是汇联易现有字段，不用新增。售后不在报销单上再选工单。申请单上有工单时，提交后才把工单信息和两份附件写到报销单。</div>
+            </div>
+            <div class="field"><div class="label"><span class="required">*</span>公司</div><div class="value">深圳弓叶具身机器人有限公司</div></div>
+            <div class="field"><div class="label">出差地点</div><div class="value">昆明（云南省）</div></div>
+            <div class="field"><div class="label"><span class="required">*</span>事由</div><div class="value">昆明客户设备维护及调试</div></div>
+            <div class="field">
+              <div class="label"><span class="required">*</span>报销凭证附件</div>
+              <div class="manual-upload"><div class="plus">＋</div>上传发票、车票等报销凭证</div>
+              <div class="hint">员工自己上传。工单 PDF 和打卡 Excel 不在这里。</div>
+            </div>
+          </div>
+          <div class="notice">点提交后，系统按报销单号写入工单号、设备、现场描述，并把 PDF、Excel 分别挂到两个附件字段。填写页上看不到这些内容。客户名称用表单上原有字段，系统不改。</div>
+          <div class="bottom"><button class="primary" id="expense-submit" type="button">提交</button></div>
+        </div>
+      </section>
+
+      <section id="expense-approver" class="hidden">
+        <div class="phone">
+          <div class="nav"><span>‹</span><span>差旅报销单</span><span>•••</span></div>
+          <div class="user"><div class="avatar approver">王</div><span>王主管 · 审批人</span></div>
+          <div class="section-title">待审批 · 差旅报销单</div>
+          <div class="form-card">
+            <div class="field"><div class="label">申请人</div><div class="value">梁泳仪</div></div>
+            <div class="field"><div class="label">关联申请单</div><div class="value" id="ex-link">CLSQ202611020031</div></div>
+            <div class="field"><div class="label">事由</div><div class="value">昆明客户设备维护及调试</div></div>
+            <div id="ex-files">
+              <div class="field"><div class="label">关联工单</div><div class="value readonly">WO20261102001</div></div>
+              <div class="field"><div class="label">工单类型</div><div class="value readonly">售后维护</div></div>
+              <div class="field"><div class="label">设备编号</div><div class="value readonly">GY-2026-001</div></div>
+              <div class="field"><div class="label">设备名称</div><div class="value readonly">分选机</div></div>
+              <div class="field"><div class="label">设备型号</div><div class="value readonly">X-100</div></div>
+              <div class="field"><div class="label">计划工期</div><div class="value readonly">3 天</div></div>
+              <div class="field"><div class="label">现场描述</div><div class="value readonly">现场设备运行异常，需要进行检查、维护及调试。</div></div>
+              <div class="field">
+                <div class="label">工单信息附件</div>
+                <div class="system-box">
+                  <div class="file">
+                    <div class="file-icon">PDF</div>
+                    <div class="file-info">
+                      <div class="file-name">工单信息_WO20261102001_CLBX20261110001.pdf</div>
+                      <div class="file-meta">挂在报销单 CLBX20261110001 的「工单信息附件」</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">打卡记录附件</div>
+                <div class="system-box">
+                  <div class="file">
+                    <div class="file-icon xlsx">XLS</div>
+                    <div class="file-info">
+                      <div class="file-name">打卡记录_梁泳仪_2026-11-03_2026-11-05.xlsx</div>
+                      <div class="file-meta">挂在同一张报销单的「打卡记录附件」</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="ex-empty" class="notice hidden">关联的申请单没有工单号，不回写工单信息，也不生成工单 PDF 和打卡 Excel。</div>
+            <div class="field">
+              <div class="label">报销凭证附件</div>
+              <div class="value">发票、车票（员工上传）</div>
+            </div>
+          </div>
+          <div class="notice">工单信息和两份系统附件都在售后提交之后才出现。发票仍是员工提交前自己传的。报销单上的工单来自关联申请单，不是再选一次。</div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="config">
+      <div id="config-travel">
+        <h2>商务在差旅申请单上新增的字段</h2>
+        <p>控件名称和 messageKey 来自汇联易开放文档「控件说明」「申请单自定义控件值更新」。每个字段建好后，把字段编码 fieldCode 交给开发。上传和回写都靠这个编码，不靠中文名称。</p>
+        <table>
+          <thead><tr><th>字段</th><th>汇联易控件</th><th>messageKey</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号，客户、设备和 PDF 在提交之后才写入，给审批人看。</span></span>关联工单</td><td>外部值列表，先按单选</td><td><code>cust_list_out</code></td><td>单选或多选待确认。当前先按单选配置，其余要求见字段前的问号。</td></tr>
+            <tr><td>工单类型</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「售后维护」。</td></tr>
+            <tr><td>设备编号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单关联设备的编号。多台用逗号分隔，顺序和名称、型号一致。</td></tr>
+            <tr><td>设备名称</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。没有关联设备时写「无关联设备」。</td></tr>
+            <tr><td>设备型号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。多台时与编号、名称同一顺序。</td></tr>
+            <tr><td>计划工期</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「3 天」。</td></tr>
+            <tr><td>现场描述</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单问题描述。不要写进现有的「出差事由」。</td></tr>
+            <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。提交回调拿到单号后，调用单据附件上传，<code>entityType=1001</code>，<code>fieldCode</code> 填这个控件的编码。</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px">公司、部门、日期、出差事由、客户名称是现有字段，不用新增，系统也不改。提交后汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener"><code>TRAVEL_APPLICATION_SUBMIT</code></a>，这时才有申请单号。回填从哪三个字段取，见下方说明。</p>
+      </div>
+      <div id="config-expense" class="hidden">
+        <h2>商务在差旅报销单上新增的字段</h2>
+        <p>报销单也要能直接看到工单信息。这些字段都是提交后由系统写入，售后不在报销单上再选工单。关联申请单、事由、报销凭证如果表单上已经有，保持原样。</p>
+        <table>
+          <thead><tr><th>字段</th><th>汇联易控件</th><th>messageKey</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>关联工单</td><td>单行输入框</td><td><code>input</code></td><td>系统写入申请单上的工单号。不要做成下拉。</td></tr>
+            <tr><td>工单类型</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「售后维护」。</td></tr>
+            <tr><td>设备编号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单关联设备的编号。多台用逗号分隔，顺序和名称、型号一致。</td></tr>
+            <tr><td>设备名称</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。没有关联设备时写「无关联设备」。</td></tr>
+            <tr><td>设备型号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。多台时与编号、名称同一顺序。</td></tr>
+            <tr><td>计划工期</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「3 天」。</td></tr>
+            <tr><td>现场描述</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单问题描述。不要写进现有的「事由」。</td></tr>
+            <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。上传时 <code>entityType=1002</code>，<code>fieldCode</code> 用这个控件的编码。</td></tr>
+            <tr><td>打卡记录附件</td><td>附件</td><td><code>attachment</code></td><td>允许 xls、xlsx。必须是另一个附件控件，编码和上面的不同。</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:12px">售后提交后，汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/expense-report/submit.html" target="_blank" rel="noopener"><code>EXPENSE_REPORT_SUBMIT</code></a>。解开后的正文是<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/query-expense-report-detail.html" target="_blank" rel="noopener">报销单详情</a>。有工单号时，用<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/update-expense-report-custom-form-value.html" target="_blank" rel="noopener">报销单自定义控件值更新</a>回写上面的文本，并把两份文件分别传到两个附件字段。没有工单号则什么都不写。</p>
+      </div>
+      <div class="docs" id="writeback">
+        <h2>提交后怎么知道要回填</h2>
+        <p>汇联易提交成功后，把加密的 <code>message</code> 推到我们的回调地址。用<a href="https://opendocs.huilianyi.com/callback.html#%E5%8A%A0%E8%A7%A3%E5%AF%86%E5%A4%84%E7%90%86" target="_blank" rel="noopener">官方 Java 解密库</a>解开（<a href="https://opendocs.huilianyi.com/file/PublicMsgCryptUtil.zip" target="_blank" rel="noopener">PublicMsgCryptUtil.zip</a>，文档要求把下载地址复制到新标签页打开）。</p>
+        <p><a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener">差旅申请提交</a>写明，解开后的正文就是<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>。从里面取这三项：</p>
+        <ol>
+          <li><code>businessCode</code>：这张申请单的单号，回填和上传附件都用它</li>
+          <li><code>applicant.employeeID</code>：当前申请人的汇联易工号。下拉和提交校验都用它对应老系统工单处理人，对不上的工单不能选</li>
+          <li><code>custFormValues</code>：找到「关联工单」的 <code>fieldCode</code>，<code>value</code> 就是下拉返回的工单号。没有值则不回填</li>
+        </ol>
+        <p>下拉数据来自<a href="https://opendocs.huilianyi.com/callback/business-data/enumeration/user_out_enumeration.html" target="_blank" rel="noopener">外部值列表</a>，<code>API_CODE</code> 为 <code>OUT_ENUMERATION</code>。</p>
+        <button class="sample-btn" id="open-samples" type="button">打开附件模板</button>
+      </div>
+    </aside>
+  </div>
+  </div>
+
+  <div id="panel-docs" class="panel hidden">
+    <div class="doc-tabs" role="tablist">
+      <button class="doc-tab active" data-doc="req" type="button">需求说明</button>
+      <button class="doc-tab" data-doc="api" type="button">对接说明</button>
+      <button class="doc-tab" data-doc="biz" type="button">商务配置</button>
+    </div>
+    <article class="md-doc" id="doc-view">正在打开文档…</article>
+  </div>
+
+  <div id="panel-templates" class="panel hidden">
+    <div class="tpl-layout">
+      <div class="tpl-side" role="tablist">
+        <button class="tpl-pick active" data-tpl="pdf-sample" type="button">工单信息样例<span>已填好的 PDF</span></button>
+        <button class="tpl-pick" data-tpl="pdf-blank" type="button">工单信息模板<span>空白版式</span></button>
+        <button class="tpl-pick" data-tpl="xls-yes" type="button">打卡记录 · 有打卡<span>Excel 样例</span></button>
+        <button class="tpl-pick" data-tpl="xls-no" type="button">打卡记录 · 无记录<span>Excel 样例</span></button>
+      </div>
+      <div>
+        <div class="tpl-view" id="tpl-pdf-sample">
+          <h2>工单信息 PDF 样例</h2>
+          <p>申请单和报销单共用这一版。文件名是「工单信息_工单号_单据号」。<a href="samples/工单信息_GD20260001_TA00000001.pdf" target="_blank" rel="noopener">新窗口打开</a></p>
+          <iframe class="pdf-frame" src="samples/工单信息_GD20260001_TA00000001.pdf" title="工单信息 PDF 样例"></iframe>
+        </div>
+        <div class="tpl-view hidden" id="tpl-pdf-blank">
+          <h2>工单信息 PDF 模板</h2>
+          <p>空白版式，用来对字段位置。<a href="samples/工单信息PDF模板.pdf" target="_blank" rel="noopener">新窗口打开</a></p>
+          <iframe class="pdf-frame" src="samples/工单信息PDF模板.pdf" title="工单信息 PDF 模板"></iframe>
+        </div>
+        <div class="tpl-view hidden" id="tpl-xls-yes">
+          <h2>打卡记录 · 有打卡</h2>
+          <p>只列 OA 已有的打卡流水，不算缺卡。文件名是「打卡记录_姓名_开始日期_结束日期」。<a href="samples/有打卡记录/打卡记录_张三_2026-11-03_2026-11-07.xlsx" target="_blank" rel="noopener">下载 Excel</a></p>
+          <table>
+            <tbody>
+              <tr><td colspan="4">姓名：张三　统计范围：2026-11-03 至 2026-11-07　数据来源：公司考勤系统　生成时间：2026-11-10 10:00</td></tr>
+              <tr><th>打卡日期</th><th>打卡时间</th><th>打卡地点</th><th>打卡方式</th></tr>
+              <tr><td>2026-11-03</td><td>08:32:15</td><td>某某客户厂区东门</td><td>App 拍照</td></tr>
+              <tr><td>2026-11-03</td><td>18:06:41</td><td>某某客户厂区东门</td><td>App 拍照</td></tr>
+              <tr><td>2026-11-04</td><td>08:47:03</td><td>考勤机-总部一楼</td><td>人脸</td></tr>
+              <tr><td>2026-11-04</td><td>17:52:18</td><td>某某客户车间</td><td>指纹</td></tr>
+              <tr><td>2026-11-05</td><td>09:05:22</td><td>某某客户车间</td><td>App 拍照</td></tr>
+              <tr><td>2026-11-05</td><td>18:11:36</td><td>某某客户车间</td><td>人脸</td></tr>
+              <tr><td>2026-11-07</td><td>08:30:00</td><td>补卡</td><td>补卡</td></tr>
+              <tr><td>2026-11-07</td><td>18:20:09</td><td>某某客户厂区东门</td><td>其他</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tpl-view hidden" id="tpl-xls-no">
+          <h2>打卡记录 · 该期间无打卡记录</h2>
+          <p>出差日期内一条打卡都没有时，只写这一行，不推断缺卡。<a href="samples/无打卡记录/打卡记录_张三_2026-11-03_2026-11-07.xlsx" target="_blank" rel="noopener">下载 Excel</a></p>
+          <table>
+            <tbody>
+              <tr><td colspan="4">姓名：张三　统计范围：2026-11-03 至 2026-11-07　数据来源：公司考勤系统　生成时间：2026-11-10 10:00</td></tr>
+              <tr><th>打卡日期</th><th>打卡时间</th><th>打卡地点</th><th>打卡方式</th></tr>
+              <tr><td colspan="4">该期间无打卡记录</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="docs-data.js"></script>
+<script>
+const orders={
+  WO20261102001:{customer:'昆明客户有限公司',device:'GY-2026-001',deviceName:'分选机',deviceModel:'X-100',description:'现场设备运行异常，需要进行检查、维护及调试。'},
+  WO20261102002:{customer:'深圳客户有限公司',device:'GY-2026-008',deviceName:'分选机',deviceModel:'X-200',description:'现场设备需要检查并完成安装调试。'}
+};
+let page='travel';
+let role='staff';
+function render(){
+  document.querySelectorAll('.tab').forEach(t=>{
+    const on=t.dataset.page===page;
+    t.classList.toggle('active',on);
+    t.setAttribute('aria-selected',on?'true':'false');
+  });
+  document.querySelectorAll('.role').forEach(t=>t.classList.toggle('active',t.dataset.role===role));
+  ['travel-staff','travel-approver','expense-staff','expense-approver'].forEach(id=>{
+    const show=(page==='travel'&&role==='staff'&&id==='travel-staff')
+      ||(page==='travel'&&role==='approver'&&id==='travel-approver')
+      ||(page==='expense'&&role==='staff'&&id==='expense-staff')
+      ||(page==='expense'&&role==='approver'&&id==='expense-approver');
+    document.getElementById(id).classList.toggle('hidden',!show);
+  });
+  document.getElementById('config-travel').classList.toggle('hidden',page!=='travel');
+  document.getElementById('config-expense').classList.toggle('hidden',page!=='expense');
+  const selected=document.getElementById('work-order').value;
+  const order=orders[selected];
+  document.getElementById('ap-system').classList.toggle('hidden',!order);
+  document.getElementById('ap-empty').classList.toggle('hidden',!!order);
+  document.getElementById('ap-order').textContent=order?selected+' · '+order.customer:'未关联';
+  if(order){
+    document.getElementById('ap-device').textContent=order.device;
+    document.getElementById('ap-device-name').textContent=order.deviceName;
+    document.getElementById('ap-device-model').textContent=order.deviceModel;
+    document.getElementById('ap-desc').textContent=order.description;
+    document.getElementById('ap-pdf').textContent='工单信息_'+selected+'_CLSQ202611020031.pdf';
+  }
+  const linked=document.getElementById('linked-application').value==='linked';
+  document.getElementById('ex-files').classList.toggle('hidden',!linked);
+  document.getElementById('ex-empty').classList.toggle('hidden',linked);
+  document.getElementById('ex-link').textContent=linked?'CLSQ202611020031 · 已关联工单':'CLSQ202610180012 · 未关联工单';
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{page=t.dataset.page;render()}));
+document.querySelectorAll('.role').forEach(t=>t.addEventListener('click',()=>{role=t.dataset.role;render()}));
+document.getElementById('work-order').addEventListener('change',render);
+document.getElementById('linked-application').addEventListener('change',render);
+document.getElementById('travel-submit').addEventListener('click',()=>{
+  const selected=document.getElementById('work-order').value;
+  showToast(selected?'已提交。系统收到提交回调后，把 PDF 挂到该申请单的「工单信息附件」':'已提交。未选工单，不生成附件');
+  role='approver';
+  render();
+});
+document.getElementById('open-samples').addEventListener('click',()=>showMenu('templates'));
+document.getElementById('expense-submit').addEventListener('click',()=>{
+  const linked=document.getElementById('linked-application').value==='linked';
+  showToast(linked?'已提交。工单信息和两份附件将写到这张报销单':'已提交。申请单没有工单号，不回写工单信息');
+  role='approver';
+  render();
+});
+function showToast(message){
+  const toast=document.getElementById('toast');
+  toast.textContent=message;
+  toast.classList.add('show');
+  clearTimeout(window.toastTimer);
+  window.toastTimer=setTimeout(()=>toast.classList.remove('show'),2400);
+}
+const docFiles=[
+  {id:'req',file:'售后出差单据关联工单与打卡-需求说明.md'},
+  {id:'api',file:'售后出差单据关联工单与打卡-对接说明.md'},
+  {id:'biz',file:'汇联易字段配置说明-商务.md'}
+];
+let currentDoc='req';
+let docsReady=false;
+function showMenu(name){
+  document.querySelectorAll('.menu').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.menu===name);
+  });
+  document.getElementById('panel-proto').classList.toggle('hidden',name!=='proto');
+  document.getElementById('panel-flow').classList.toggle('hidden',name!=='flow');
+  document.getElementById('panel-docs').classList.toggle('hidden',name!=='docs');
+  document.getElementById('panel-templates').classList.toggle('hidden',name!=='templates');
+  if(name==='docs') loadDocs();
+}
+function showDoc(id){
+  currentDoc=id;
+  document.querySelectorAll('.doc-tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.doc===id));
+  const found=(window.HLY_DOCS||[]).find(item=>item.id===id);
+  document.getElementById('doc-view').innerHTML=found?renderMarkdown(found.markdown):'这份文档没有读到。';
+}
+async function loadDocs(){
+  if(docsReady){
+    showDoc(currentDoc);
+    return;
+  }
+  const baked=window.HLY_DOCS||[];
+  const loaded=[];
+  for(const item of docFiles){
+    let markdown='';
+    try{
+      const res=await fetch(encodeURI(item.file));
+      if(!res.ok) throw new Error('status');
+      markdown=await res.text();
+    }catch(e){
+      const old=baked.find(doc=>doc.id===item.id);
+      markdown=old?old.markdown:'打不开 '+item.file+'。请和本页面放在同一目录后再打开。';
+    }
+    loaded.push({id:item.id,markdown});
+  }
+  window.HLY_DOCS=loaded;
+  docsReady=true;
+  showDoc(currentDoc);
+}
+function renderMarkdown(src){
+  const lines=String(src).replace(/\r\n/g,'\n').split('\n');
+  let html='';
+  let i=0;
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const inline=s=>{
+    let text=esc(s);
+    text=text.replace(/`([^`]+)`/g,'<code>$1</code>');
+    text=text.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+    text=text.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    return text;
+  };
+  while(i<lines.length){
+    const line=lines[i];
+    if(line.startsWith('```')){
+      const buf=[];
+      i++;
+      while(i<lines.length && !lines[i].startsWith('```')){
+        buf.push(esc(lines[i]));
+        i++;
+      }
+      i++;
+      html+='<pre><code>'+buf.join('\n')+'</code></pre>';
+      continue;
+    }
+    if(line.startsWith('|')){
+      const rows=[];
+      while(i<lines.length && lines[i].startsWith('|')){
+        rows.push(lines[i].replace(/^\|/,'').replace(/\|$/,'').split('|').map(cell=>cell.trim()));
+        i++;
+      }
+      const body=rows.filter(row=>!row.every(cell=>/^:?-+:?$/.test(cell)));
+      if(!body.length) continue;
+      html+='<table><thead><tr>'+body[0].map(cell=>'<th>'+inline(cell)+'</th>').join('')+'</tr></thead><tbody>';
+      body.slice(1).forEach(row=>{
+        html+='<tr>'+row.map(cell=>'<td>'+inline(cell)+'</td>').join('')+'</tr>';
+      });
+      html+='</tbody></table>';
+      continue;
+    }
+    const heading=/^(#{1,4})\s+(.*)$/.exec(line);
+    if(heading){
+      const level=heading[1].length;
+      html+='<h'+level+'>'+inline(heading[2])+'</h'+level+'>';
+      i++;
+      continue;
+    }
+    if(/^\s*[-*]\s+/.test(line)){
+      html+='<ul>';
+      while(i<lines.length && /^\s*[-*]\s+/.test(lines[i])){
+        html+='<li>'+inline(lines[i].replace(/^\s*[-*]\s+/,''))+'</li>';
+        i++;
+      }
+      html+='</ul>';
+      continue;
+    }
+    if(/^\s*\d+\.\s+/.test(line)){
+      html+='<ol>';
+      while(i<lines.length && /^\s*\d+\.\s+/.test(lines[i])){
+        html+='<li>'+inline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>';
+        i++;
+      }
+      html+='</ol>';
+      continue;
+    }
+    if(!line.trim()){
+      i++;
+      continue;
+    }
+    html+='<p>'+inline(line)+'</p>';
+    i++;
+  }
+  return html;
+}
+function showTemplate(id){
+  document.querySelectorAll('.tpl-pick').forEach(btn=>btn.classList.toggle('active',btn.dataset.tpl===id));
+  ['pdf-sample','pdf-blank','xls-yes','xls-no'].forEach(key=>{
+    document.getElementById('tpl-'+key).classList.toggle('hidden',key!==id);
+  });
+}
+document.querySelectorAll('.menu').forEach(btn=>btn.addEventListener('click',()=>showMenu(btn.dataset.menu)));
+document.querySelectorAll('.doc-tab').forEach(btn=>btn.addEventListener('click',()=>showDoc(btn.dataset.doc)));
+document.querySelectorAll('.tpl-pick').forEach(btn=>btn.addEventListener('click',()=>showTemplate(btn.dataset.tpl)));
+render();
+</script>
+</body>
+</html>
