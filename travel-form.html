@@ -163,14 +163,14 @@ a:hover{text-decoration:underline}
 <p>外层 <code>message</code> 是加密的，用<a href="https://opendocs.huilianyi.com/callback.html#%E5%8A%A0%E8%A7%A3%E5%AF%86%E5%A4%84%E7%90%86" target="_blank" rel="noopener">官方 Java 解密库</a>解开。解开后的正文就是<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>。从里面取申请单号 <code>businessCode</code>、申请人 <code>employeeID</code>，以及「关联工单」字段里的工单号。先返回成功，再做后面的回填。</p>      </div>
     </div>
     <div class="step">
-      <div class="step-head"><span class="step-no">6</span><span class="step-title">调用汇联易接口回填</span></div>
+      <div class="step-head"><span class="step-no">6</span><span class="step-title">上传工单 PDF</span></div>
       <div class="step-body">
-<p>工单基本信息和设备信息用<a href="https://opendocs.huilianyi.com/implement/business-data/application/update-application-custom-form-value.html" target="_blank" rel="noopener">申请单自定义控件值更新</a>：工单类型、计划工期、现场描述、设备编号、设备名称、设备型号。工单 PDF 用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，挂到「工单信息附件」，<code>entityType=1001</code>。字段都靠商务提供的 <code>fieldCode</code>。</p>      </div>
+<p>工单类型、设备、计划工期、现场描述都在《工单信息》PDF 里，表单上不再单列这些字段。PDF 用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，挂到「工单信息附件」，<code>entityType=1001</code>。附件控件的 <code>fieldCode</code> 由商务提供。</p>      </div>
     </div>
     <div class="step">
       <div class="step-head"><span class="step-no">7</span><span class="step-title">工单和差旅申请单的关联入库</span></div>
       <div class="step-body">
-<p>对接服务自己的库记下：申请单号、工单号、已上传附件的 OID。报销单提交时用申请单号找到这张工单，再回填报销单上的工单信息和打卡 Excel。单据撤回后重新提交，按新工单覆盖这条记录。</p>      </div>
+<p>对接服务自己的库记下：申请单号、工单号、已上传附件的 OID。报销单提交时用申请单号找到这张工单，再上传工单 PDF 和打卡 Excel。单据撤回后重新提交，按新工单覆盖这条记录。</p>      </div>
     </div>    </div>
   </section>
 
@@ -205,9 +205,9 @@ a:hover{text-decoration:underline}
 <p>从报销单详情的 <code>applicationList</code> 取出关联的申请单号，再查<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>，或查上一步入库的申请单号和工单号。没有关联申请单，或申请单上没有工单号：结束，不回填，也不提醒。</p>      </div>
     </div>
     <div class="step">
-      <div class="step-head"><span class="step-no">6</span><span class="step-title">有工单则回填</span></div>
+      <div class="step-head"><span class="step-no">6</span><span class="step-title">有工单则上传两份附件</span></div>
       <div class="step-body">
-<p>工单基础信息和设备信息用<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/update-expense-report-custom-form-value.html" target="_blank" rel="noopener">报销单自定义控件值更新</a>：工单号、工单类型、计划工期、现场描述、设备编号、设备名称、设备型号。两份附件用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，<code>entityType=1002</code>：工单 PDF 进「工单信息附件」，打卡 Excel 进「打卡记录附件」。打卡只取报销申请人本人，日期用申请单的出发日到返回日。字段都用报销单自己的 <code>fieldCode</code>。</p>      </div>
+<p>报销单上不另加工单号、工单类型、设备、计划工期、现场描述，这些都在 PDF 里。两份附件用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，<code>entityType=1002</code>：工单 PDF 进「工单信息附件」，打卡 Excel 进「打卡记录附件」。打卡只取报销申请人本人，日期用申请单的出发日到返回日。两个附件控件各有自己的 <code>fieldCode</code>。</p>      </div>
     </div>    </div>
   </section>
   </div>
@@ -234,7 +234,7 @@ a:hover{text-decoration:underline}
             <div class="field"><div class="label"><span class="required">*</span>部门</div><div class="value">人工智能研究院</div></div>
             <div class="field"><div class="label"><span class="required">*</span>开始日期－结束日期</div><div class="value" style="display:flex;justify-content:space-between"><span>2026-11-03</span><span class="placeholder">—</span><span>2026-11-05</span></div></div>
             <div class="field">
-              <div class="label"><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号，客户、设备和 PDF 在提交之后才写入，给审批人看。</span></span>关联工单</div>
+              <div class="label"><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号。工单类型、设备、工期、现场描述都在 PDF 里，表单上不另加这些字段。提交之后只把 PDF 挂到附件，给审批人看。</span></span>关联工单</div>
               <select id="work-order">
                 <option value="">不关联工单</option>
                 <option value="WO20261102001">WO20261102001 · 昆明客户设备维护</option>
@@ -262,12 +262,6 @@ a:hover{text-decoration:underline}
             <div class="field"><div class="label">出差事由</div><div class="value">前往客户现场处理设备问题</div></div>
             <div class="field"><div class="label">关联工单</div><div class="value" id="ap-order">未关联</div></div>
             <div id="ap-system">
-              <div class="field"><div class="label">工单类型</div><div class="value readonly">售后维护</div></div>
-              <div class="field"><div class="label">设备编号</div><div class="value readonly" id="ap-device"></div></div>
-              <div class="field"><div class="label">设备名称</div><div class="value readonly" id="ap-device-name"></div></div>
-              <div class="field"><div class="label">设备型号</div><div class="value readonly" id="ap-device-model"></div></div>
-              <div class="field"><div class="label">计划工期</div><div class="value readonly">3 天</div></div>
-              <div class="field"><div class="label">现场描述</div><div class="value readonly" id="ap-desc"></div></div>
               <div class="field">
                 <div class="label">工单信息附件</div>
                 <div class="system-box">
@@ -282,9 +276,9 @@ a:hover{text-decoration:underline}
                 </div>
               </div>
             </div>
-            <div id="ap-empty" class="notice hidden">这张申请单没有关联工单，没有工单字段，也没有工单 PDF。</div>
+            <div id="ap-empty" class="notice hidden">这张申请单没有关联工单，也没有工单 PDF。</div>
           </div>
-          <div class="notice">以上内容在售后点提交之后才写入。审批人打开时若刚提交完，刷新即可看到。</div>
+          <div class="notice">工单 PDF 在售后点提交之后才挂上。类型、设备和现场描述都在 PDF 里，表单上不再单列。刚提交完就打开时，刷新即可看到。</div>
         </div>
       </section>
 
@@ -301,7 +295,7 @@ a:hover{text-decoration:underline}
                 <option value="linked">CLSQ202611020031 · 11月3日—11月5日 · 已关联工单</option>
                 <option value="none">CLSQ202610180012 · 未关联工单</option>
               </select>
-              <div class="hint">这是汇联易现有字段，不用新增。售后不在报销单上再选工单。申请单上有工单时，提交后才把工单信息和两份附件写到报销单。</div>
+              <div class="hint">这是汇联易现有字段，不用新增。售后不在报销单上再选工单。申请单上有工单时，提交后才把工单 PDF 和打卡 Excel 挂到报销单。</div>
             </div>
             <div class="field"><div class="label"><span class="required">*</span>公司</div><div class="value">深圳弓叶具身机器人有限公司</div></div>
             <div class="field"><div class="label">出差地点</div><div class="value">昆明（云南省）</div></div>
@@ -312,7 +306,7 @@ a:hover{text-decoration:underline}
               <div class="hint">员工自己上传。工单 PDF 和打卡 Excel 不在这里。</div>
             </div>
           </div>
-          <div class="notice">点提交后，系统按报销单号写入工单号、设备、现场描述，并把 PDF、Excel 分别挂到两个附件字段。填写页上看不到这些内容。客户名称用表单上原有字段，系统不改。</div>
+          <div class="notice">点提交后，系统把工单 PDF 和打卡 Excel 分别挂到两个附件字段。表单上不再单列工单号、设备、现场描述。填写页上看不到这两份附件。</div>
           <div class="bottom"><button class="primary" id="expense-submit" type="button">提交</button></div>
         </div>
       </section>
@@ -327,13 +321,6 @@ a:hover{text-decoration:underline}
             <div class="field"><div class="label">关联申请单</div><div class="value" id="ex-link">CLSQ202611020031</div></div>
             <div class="field"><div class="label">事由</div><div class="value">昆明客户设备维护及调试</div></div>
             <div id="ex-files">
-              <div class="field"><div class="label">关联工单</div><div class="value readonly">WO20261102001</div></div>
-              <div class="field"><div class="label">工单类型</div><div class="value readonly">售后维护</div></div>
-              <div class="field"><div class="label">设备编号</div><div class="value readonly">GY-2026-001</div></div>
-              <div class="field"><div class="label">设备名称</div><div class="value readonly">分选机</div></div>
-              <div class="field"><div class="label">设备型号</div><div class="value readonly">X-100</div></div>
-              <div class="field"><div class="label">计划工期</div><div class="value readonly">3 天</div></div>
-              <div class="field"><div class="label">现场描述</div><div class="value readonly">现场设备运行异常，需要进行检查、维护及调试。</div></div>
               <div class="field">
                 <div class="label">工单信息附件</div>
                 <div class="system-box">
@@ -361,13 +348,13 @@ a:hover{text-decoration:underline}
                 </div>
               </div>
             </div>
-            <div id="ex-empty" class="notice hidden">关联的申请单没有工单号，不回写工单信息，也不生成工单 PDF 和打卡 Excel。</div>
+            <div id="ex-empty" class="notice hidden">关联的申请单没有工单号，不生成工单 PDF 和打卡 Excel。</div>
             <div class="field">
               <div class="label">报销凭证附件</div>
               <div class="value">发票、车票（员工上传）</div>
             </div>
           </div>
-          <div class="notice">工单信息和两份系统附件都在售后提交之后才出现。发票仍是员工提交前自己传的。报销单上的工单来自关联申请单，不是再选一次。</div>
+          <div class="notice">两份系统附件都在售后提交之后才出现。工单详情看 PDF，表单上不再单列。发票仍是员工提交前自己传的。</div>
         </div>
       </section>
     </div>
@@ -375,40 +362,27 @@ a:hover{text-decoration:underline}
     <aside class="config">
       <div id="config-travel">
         <h2>商务在差旅申请单上新增的字段</h2>
-        <p>控件名称和 messageKey 来自汇联易开放文档「控件说明」「申请单自定义控件值更新」。每个字段建好后，把字段编码 fieldCode 交给开发。上传和回写都靠这个编码，不靠中文名称。</p>
+        <p>工单类型、设备、计划工期、现场描述都在《工单信息》PDF 里，不要再做成表单字段。这里只加「关联工单」和「工单信息附件」。附件上传靠字段编码 fieldCode，不靠中文名称。</p>
         <table>
           <thead><tr><th>字段</th><th>汇联易控件</th><th>messageKey</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号，客户、设备和 PDF 在提交之后才写入，给审批人看。</span></span>关联工单</td><td>外部值列表，先按单选</td><td><code>cust_list_out</code></td><td>单选或多选待确认。当前先按单选配置，其余要求见字段前的问号。</td></tr>
-            <tr><td>工单类型</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「售后维护」。</td></tr>
-            <tr><td>设备编号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单关联设备的编号。多台用逗号分隔，顺序和名称、型号一致。</td></tr>
-            <tr><td>设备名称</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。没有关联设备时写「无关联设备」。</td></tr>
-            <tr><td>设备型号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。多台时与编号、名称同一顺序。</td></tr>
-            <tr><td>计划工期</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「3 天」。</td></tr>
-            <tr><td>现场描述</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单问题描述。不要写进现有的「出差事由」。</td></tr>
+            <tr><td><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号。工单类型、设备、工期、现场描述都在 PDF 里，表单上不另加这些字段。提交之后只把 PDF 挂到附件，给审批人看。</span></span>关联工单</td><td>外部值列表，先按单选</td><td><code>cust_list_out</code></td><td>单选或多选待确认。当前先按单选配置，其余要求见字段前的问号。</td></tr>
             <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。提交回调拿到单号后，调用单据附件上传，<code>entityType=1001</code>，<code>fieldCode</code> 填这个控件的编码。</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:12px">公司、部门、日期、出差事由、客户名称是现有字段，不用新增，系统也不改。提交后汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener"><code>TRAVEL_APPLICATION_SUBMIT</code></a>，这时才有申请单号。回填从哪三个字段取，见下方说明。</p>
+        <p style="margin-top:12px">公司、部门、日期、出差事由、客户名称是现有字段，不用新增，系统也不改。提交后汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener"><code>TRAVEL_APPLICATION_SUBMIT</code></a>，这时才有申请单号，才能把 PDF 挂上去。</p>
       </div>
       <div id="config-expense" class="hidden">
         <h2>商务在差旅报销单上新增的字段</h2>
-        <p>报销单也要能直接看到工单信息。这些字段都是提交后由系统写入，售后不在报销单上再选工单。关联申请单、事由、报销凭证如果表单上已经有，保持原样。</p>
+        <p>只加两个附件。工单号、工单类型、设备、计划工期、现场描述都在 PDF 里，报销单上不再单列。售后不在报销单上再选工单。关联申请单、事由、报销凭证如果表单上已经有，保持原样。</p>
         <table>
           <thead><tr><th>字段</th><th>汇联易控件</th><th>messageKey</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td>关联工单</td><td>单行输入框</td><td><code>input</code></td><td>系统写入申请单上的工单号。不要做成下拉。</td></tr>
-            <tr><td>工单类型</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「售后维护」。</td></tr>
-            <tr><td>设备编号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单关联设备的编号。多台用逗号分隔，顺序和名称、型号一致。</td></tr>
-            <tr><td>设备名称</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。没有关联设备时写「无关联设备」。</td></tr>
-            <tr><td>设备型号</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写。多台时与编号、名称同一顺序。</td></tr>
-            <tr><td>计划工期</td><td>单行输入框</td><td><code>input</code></td><td>系统回写，例如「3 天」。</td></tr>
-            <tr><td>现场描述</td><td>多行输入框</td><td><code>text_area</code></td><td>系统回写工单问题描述。不要写进现有的「事由」。</td></tr>
             <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。上传时 <code>entityType=1002</code>，<code>fieldCode</code> 用这个控件的编码。</td></tr>
             <tr><td>打卡记录附件</td><td>附件</td><td><code>attachment</code></td><td>允许 xls、xlsx。必须是另一个附件控件，编码和上面的不同。</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:12px">售后提交后，汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/expense-report/submit.html" target="_blank" rel="noopener"><code>EXPENSE_REPORT_SUBMIT</code></a>。解开后的正文是<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/query-expense-report-detail.html" target="_blank" rel="noopener">报销单详情</a>。有工单号时，用<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/update-expense-report-custom-form-value.html" target="_blank" rel="noopener">报销单自定义控件值更新</a>回写上面的文本，并把两份文件分别传到两个附件字段。没有工单号则什么都不写。</p>
+        <p style="margin-top:12px">售后提交后，汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/expense-report/submit.html" target="_blank" rel="noopener"><code>EXPENSE_REPORT_SUBMIT</code></a>。解开后的正文是<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/query-expense-report-detail.html" target="_blank" rel="noopener">报销单详情</a>。有工单号时，用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>把两份文件分别传到两个附件字段。没有工单号则什么都不传。</p>
       </div>
       <div class="docs" id="writeback">
         <h2>提交后怎么知道要回填</h2>
@@ -491,8 +465,8 @@ a:hover{text-decoration:underline}
 <script src="docs-data.js"></script>
 <script>
 const orders={
-  WO20261102001:{customer:'昆明客户有限公司',device:'GY-2026-001',deviceName:'分选机',deviceModel:'X-100',description:'现场设备运行异常，需要进行检查、维护及调试。'},
-  WO20261102002:{customer:'深圳客户有限公司',device:'GY-2026-008',deviceName:'分选机',deviceModel:'X-200',description:'现场设备需要检查并完成安装调试。'}
+  WO20261102001:{customer:'昆明客户有限公司'},
+  WO20261102002:{customer:'深圳客户有限公司'}
 };
 let page='travel';
 let role='staff';
@@ -518,10 +492,6 @@ function render(){
   document.getElementById('ap-empty').classList.toggle('hidden',!!order);
   document.getElementById('ap-order').textContent=order?selected+' · '+order.customer:'未关联';
   if(order){
-    document.getElementById('ap-device').textContent=order.device;
-    document.getElementById('ap-device-name').textContent=order.deviceName;
-    document.getElementById('ap-device-model').textContent=order.deviceModel;
-    document.getElementById('ap-desc').textContent=order.description;
     document.getElementById('ap-pdf').textContent='工单信息_'+selected+'_CLSQ202611020031.pdf';
   }
   const linked=document.getElementById('linked-application').value==='linked';
@@ -542,7 +512,7 @@ document.getElementById('travel-submit').addEventListener('click',()=>{
 document.getElementById('open-samples').addEventListener('click',()=>showMenu('templates'));
 document.getElementById('expense-submit').addEventListener('click',()=>{
   const linked=document.getElementById('linked-application').value==='linked';
-  showToast(linked?'已提交。工单信息和两份附件将写到这张报销单':'已提交。申请单没有工单号，不回写工单信息');
+  showToast(linked?'已提交。工单 PDF 和打卡 Excel 将挂到这张报销单':'已提交。申请单没有工单号，不生成附件');
   role='approver';
   render();
 });
