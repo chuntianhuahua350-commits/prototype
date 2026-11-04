@@ -163,14 +163,14 @@ a:hover{text-decoration:underline}
 <p>外层 <code>message</code> 是加密的，用<a href="https://opendocs.huilianyi.com/callback.html#%E5%8A%A0%E8%A7%A3%E5%AF%86%E5%A4%84%E7%90%86" target="_blank" rel="noopener">官方 Java 解密库</a>解开。解开后的正文就是<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>。从里面取申请单号 <code>businessCode</code>、申请人 <code>employeeID</code>，以及「关联工单」字段里的工单号。先返回成功，再做后面的回填。</p>      </div>
     </div>
     <div class="step">
-      <div class="step-head"><span class="step-no">6</span><span class="step-title">上传工单 PDF</span></div>
+      <div class="step-head"><span class="step-no">6</span><span class="step-title">上传工单 PDF 和现场照片/视频</span></div>
       <div class="step-body">
-<p>工单类型、设备、计划工期、现场描述都在《工单信息》PDF 里，表单上不再单列这些字段。PDF 用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，挂到「工单信息附件」，<code>entityType=1001</code>。附件控件的 <code>fieldCode</code> 由商务提供。</p>      </div>
+<p>工单类型、设备、计划工期、现场描述都在《工单信息》PDF 里。设备表多一列过保状态。现场照片和视频不进 PDF，用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>挂到「现场照片/视频」。PDF 挂到「工单信息附件」，<code>entityType=1001</code>。两个附件控件的 <code>fieldCode</code> 由商务提供。</p>      </div>
     </div>
     <div class="step">
       <div class="step-head"><span class="step-no">7</span><span class="step-title">工单和差旅申请单的关联入库</span></div>
       <div class="step-body">
-<p>对接服务自己的库记下：申请单号、工单号、已上传附件的 OID。报销单提交时用申请单号找到这张工单，再上传工单 PDF 和打卡 Excel。单据撤回后重新提交，按新工单覆盖这条记录。</p>      </div>
+<p>对接服务自己的库记下：申请单号、工单号、已上传附件的 OID。报销单提交时用申请单号找到这张工单，再上传工单 PDF、现场照片/视频和打卡 Excel。单据撤回后重新提交，按新工单覆盖这条记录。</p>      </div>
     </div>    </div>
   </section>
 
@@ -192,7 +192,7 @@ a:hover{text-decoration:underline}
     <div class="step">
       <div class="step-head"><span class="step-no">3</span><span class="step-title">提交</span></div>
       <div class="step-body">
-<p>售后点提交。填写页上看不到工单字段、工单 PDF 和打卡 Excel。</p>      </div>
+<p>售后点提交。填写页上看不到工单字段、工单 PDF、现场照片/视频和打卡 Excel。</p>      </div>
     </div>
     <div class="step">
       <div class="step-head"><span class="step-no">4</span><span class="step-title">汇联易调用回调接口</span></div>
@@ -205,9 +205,9 @@ a:hover{text-decoration:underline}
 <p>从报销单详情的 <code>applicationList</code> 取出关联的申请单号，再查<a href="https://opendocs.huilianyi.com/implement/business-data/travel/query-travel-application-detail.html" target="_blank" rel="noopener">差旅申请单详情</a>，或查上一步入库的申请单号和工单号。没有关联申请单，或申请单上没有工单号：结束，不回填，也不提醒。</p>      </div>
     </div>
     <div class="step">
-      <div class="step-head"><span class="step-no">6</span><span class="step-title">有工单则上传两份附件</span></div>
+      <div class="step-head"><span class="step-no">6</span><span class="step-title">有工单则上传三份材料</span></div>
       <div class="step-body">
-<p>报销单上不另加工单号、工单类型、设备、计划工期、现场描述，这些都在 PDF 里。两份附件用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，<code>entityType=1002</code>：工单 PDF 进「工单信息附件」，打卡 Excel 进「打卡记录附件」。打卡只取报销申请人本人，日期用申请单的出发日到返回日。两个附件控件各有自己的 <code>fieldCode</code>。</p>      </div>
+<p>报销单上不另加工单号、工单类型、设备、计划工期、现场描述。这份 PDF 的工单信息多写开始时间、结束时间，取关联申请单的开始、结束。现场照片和视频不进 PDF。三份材料用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>，<code>entityType=1002</code>：工单 PDF 进「工单信息附件」，照片和视频进「现场照片/视频」，打卡 Excel 进「打卡记录附件」。打卡只取报销申请人本人，日期用申请单的出发日到返回日。三个附件控件各有自己的 <code>fieldCode</code>。</p>      </div>
     </div>    </div>
   </section>
   </div>
@@ -234,7 +234,7 @@ a:hover{text-decoration:underline}
             <div class="field"><div class="label"><span class="required">*</span>部门</div><div class="value">人工智能研究院</div></div>
             <div class="field"><div class="label"><span class="required">*</span>开始日期－结束日期</div><div class="value" style="display:flex;justify-content:space-between"><span>2026-11-03</span><span class="placeholder">—</span><span>2026-11-05</span></div></div>
             <div class="field">
-              <div class="label"><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号。工单类型、设备、工期、现场描述都在 PDF 里，表单上不另加这些字段。提交之后只把 PDF 挂到附件，给审批人看。</span></span>关联工单</div>
+              <div class="label"><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号。工单类型、设备、工期、现场描述都在 PDF 里，表单上不另加这些字段。提交之后把 PDF 挂到「工单信息附件」，把现场照片和视频挂到「现场照片/视频」，给审批人看。</span></span>关联工单</div>
               <select id="work-order">
                 <option value="">不关联工单</option>
                 <option value="WO20261102001">WO20261102001 · 昆明客户设备维护</option>
@@ -246,7 +246,7 @@ a:hover{text-decoration:underline}
             <div class="field"><div class="label">拜访对象</div><div class="value placeholder">请输入拜访人员</div></div>
             <div class="field"><div class="label"><span class="required">*</span>出差事由</div><div class="value">前往客户现场处理设备问题</div><div class="hint">售后自己填写，系统不改这个字段。</div></div>
           </div>
-          <div class="notice">点提交后汇联易才生成单号。系统在提交回调里，按这个单号把 PDF 挂到「工单信息附件」。</div>
+          <div class="notice">点提交后汇联易才生成单号。系统在提交回调里，按这个单号把 PDF 挂到「工单信息附件」，把现场照片和视频挂到「现场照片/视频」。</div>
           <div class="bottom"><button class="primary" id="travel-submit" type="button">提交</button></div>
         </div>
       </section>
@@ -275,10 +275,31 @@ a:hover{text-decoration:underline}
                   </div>
                 </div>
               </div>
+              <div class="field">
+                <div class="label">现场照片/视频</div>
+                <div class="system-box">
+                  <div class="file">
+                    <div class="file-icon">IMG</div>
+                    <div class="file-info">
+                      <div class="file-name">现场照片_10-30_09-12.jpg</div>
+                      <div class="file-meta">来自工单，不放进 PDF</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                  <div class="file" style="margin-top:8px">
+                    <div class="file-icon">MP4</div>
+                    <div class="file-info">
+                      <div class="file-name">现场视频1.mp4</div>
+                      <div class="file-meta">视频无法放进 PDF，挂在这个附件里</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div id="ap-empty" class="notice hidden">这张申请单没有关联工单，也没有工单 PDF。</div>
+            <div id="ap-empty" class="notice hidden">这张申请单没有关联工单，也没有工单 PDF 和现场照片/视频。</div>
           </div>
-          <div class="notice">工单 PDF 在售后点提交之后才挂上。类型、设备和现场描述都在 PDF 里，表单上不再单列。刚提交完就打开时，刷新即可看到。</div>
+          <div class="notice">工单 PDF 和现场照片/视频在售后点提交之后才挂上。类型、设备和现场描述都在 PDF 里。照片和视频不进 PDF。刚提交完就打开时，刷新即可看到。</div>
         </div>
       </section>
 
@@ -295,7 +316,7 @@ a:hover{text-decoration:underline}
                 <option value="linked">CLSQ202611020031 · 11月3日—11月5日 · 已关联工单</option>
                 <option value="none">CLSQ202610180012 · 未关联工单</option>
               </select>
-              <div class="hint">这是汇联易现有字段，不用新增。售后不在报销单上再选工单。申请单上有工单时，提交后才把工单 PDF 和打卡 Excel 挂到报销单。</div>
+              <div class="hint">这是汇联易现有字段，不用新增。售后不在报销单上再选工单。申请单上有工单时，提交后才把工单 PDF、现场照片/视频和打卡 Excel 挂到报销单。</div>
             </div>
             <div class="field"><div class="label"><span class="required">*</span>公司</div><div class="value">深圳弓叶具身机器人有限公司</div></div>
             <div class="field"><div class="label">出差地点</div><div class="value">昆明（云南省）</div></div>
@@ -303,10 +324,10 @@ a:hover{text-decoration:underline}
             <div class="field">
               <div class="label"><span class="required">*</span>报销凭证附件</div>
               <div class="manual-upload"><div class="plus">＋</div>上传发票、车票等报销凭证</div>
-              <div class="hint">员工自己上传。工单 PDF 和打卡 Excel 不在这里。</div>
+              <div class="hint">员工自己上传。工单 PDF、现场照片/视频和打卡 Excel 不在这里。</div>
             </div>
           </div>
-          <div class="notice">点提交后，系统把工单 PDF 和打卡 Excel 分别挂到两个附件字段。表单上不再单列工单号、设备、现场描述。填写页上看不到这两份附件。</div>
+          <div class="notice">点提交后，系统把工单 PDF、现场照片/视频和打卡 Excel 分别挂到三个附件字段。表单上不再单列工单号、设备、现场描述。填写页上看不到这些系统附件。</div>
           <div class="bottom"><button class="primary" id="expense-submit" type="button">提交</button></div>
         </div>
       </section>
@@ -328,7 +349,28 @@ a:hover{text-decoration:underline}
                     <div class="file-icon">PDF</div>
                     <div class="file-info">
                       <div class="file-name">工单信息_WO20261102001_CLSQ202611020031.pdf</div>
-                      <div class="file-meta">挂在报销单 CLBX20261110001 的「工单信息附件」</div>
+                      <div class="file-meta">工单信息含开始时间、结束时间</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">现场照片/视频</div>
+                <div class="system-box">
+                  <div class="file">
+                    <div class="file-icon">IMG</div>
+                    <div class="file-info">
+                      <div class="file-name">现场照片_10-30_09-12.jpg</div>
+                      <div class="file-meta">不放进 PDF</div>
+                    </div>
+                    <span class="tag">已生成</span>
+                  </div>
+                  <div class="file" style="margin-top:8px">
+                    <div class="file-icon">MP4</div>
+                    <div class="file-info">
+                      <div class="file-name">现场视频1.mp4</div>
+                      <div class="file-meta">视频无法放进 PDF</div>
                     </div>
                     <span class="tag">已生成</span>
                   </div>
@@ -348,13 +390,13 @@ a:hover{text-decoration:underline}
                 </div>
               </div>
             </div>
-            <div id="ex-empty" class="notice hidden">关联的申请单没有工单号，不生成工单 PDF 和打卡 Excel。</div>
+            <div id="ex-empty" class="notice hidden">关联的申请单没有工单号，不生成工单 PDF、现场照片/视频和打卡 Excel。</div>
             <div class="field">
               <div class="label">报销凭证附件</div>
               <div class="value">发票、车票（员工上传）</div>
             </div>
           </div>
-          <div class="notice">两份系统附件都在售后提交之后才出现。工单详情看 PDF，表单上不再单列。发票仍是员工提交前自己传的。</div>
+          <div class="notice">三份系统附件都在售后提交之后才出现。工单详情看 PDF，这份 PDF 含开始时间、结束时间。照片和视频单独挂在「现场照片/视频」。发票仍是员工提交前自己传的。</div>
         </div>
       </section>
     </div>
@@ -362,27 +404,29 @@ a:hover{text-decoration:underline}
     <aside class="config">
       <div id="config-travel">
         <h2>商务在差旅申请单上新增的字段</h2>
-        <p>工单类型、设备、计划工期、现场描述都在《工单信息》PDF 里，不要再做成表单字段。这里只加「关联工单」和「工单信息附件」。附件上传靠字段编码 fieldCode，不靠中文名称。</p>
+        <p>工单类型、设备、计划工期、现场描述都在《工单信息》PDF 里，不要再做成表单字段。设备表多一列过保状态。这里加「关联工单」「工单信息附件」「现场照片/视频」。照片和视频不进 PDF。附件上传靠字段编码 fieldCode，不靠中文名称。</p>
         <table>
           <thead><tr><th>字段</th><th>汇联易控件</th><th>messageKey</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号。工单类型、设备、工期、现场描述都在 PDF 里，表单上不另加这些字段。提交之后只把 PDF 挂到附件，给审批人看。</span></span>关联工单</td><td>外部值列表，先按单选</td><td><code>cust_list_out</code></td><td>单选或多选待确认。当前先按单选配置，其余要求见字段前的问号。</td></tr>
-            <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。提交回调拿到单号后，调用单据附件上传，<code>entityType=1001</code>，<code>fieldCode</code> 填这个控件的编码。</td></tr>
+            <tr><td><span class="qtip" tabindex="0"><span class="mark">?</span><span class="bubble"><b>待确认</b>单选还是多选还没定，当前先按单选做。单选控件是 cust_list_out；若改为多选，控件改为 multi_cust_list_out。<b>这个字段的要求</b>不设必填，可以不选。不选就按普通出差提交，不生成附件。只列出当前申请人是处理人的工单，处理人看老系统 apply_and_user，建单人不是处理人时不出现。每项显示工单号和客户名称，备注放设备编号，可按工单号、客户名称、设备编号搜索。数据来自外部值列表回调 OUT_ENUMERATION。选中后填写页只看到工单号。工单类型、设备、工期、现场描述都在 PDF 里，表单上不另加这些字段。提交之后把 PDF 挂到「工单信息附件」，把现场照片和视频挂到「现场照片/视频」，给审批人看。</span></span>关联工单</td><td>外部值列表，先按单选</td><td><code>cust_list_out</code></td><td>单选或多选待确认。当前先按单选配置，其余要求见字段前的问号。</td></tr>
+            <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。提交回调拿到单号后，调用单据附件上传，<code>entityType=1001</code>，<code>fieldCode</code> 填这个控件的编码。PDF 不含现场照片和视频。</td></tr>
+            <tr><td>现场照片/视频</td><td>附件</td><td><code>attachment</code></td><td>允许图片和视频。编码不能和上一行相同。工单上的现场照片和视频都传到这里。</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:12px">公司、部门、日期、出差事由、客户名称是现有字段，不用新增，系统也不改。提交后汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener"><code>TRAVEL_APPLICATION_SUBMIT</code></a>，这时才有申请单号，才能把 PDF 挂上去。</p>
+        <p style="margin-top:12px">公司、部门、日期、出差事由、客户名称是现有字段，不用新增，系统也不改。提交后汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/application/travel-application/submit.html" target="_blank" rel="noopener"><code>TRAVEL_APPLICATION_SUBMIT</code></a>，这时才有申请单号，才能把 PDF 和现场照片/视频挂上去。</p>
       </div>
       <div id="config-expense" class="hidden">
         <h2>商务在差旅报销单上新增的字段</h2>
-        <p>只加两个附件。工单号、工单类型、设备、计划工期、现场描述都在 PDF 里，报销单上不再单列。售后不在报销单上再选工单。关联申请单、事由、报销凭证如果表单上已经有，保持原样。</p>
+        <p>加三个附件。工单号、工单类型、设备、计划工期、现场描述都在 PDF 里，报销单上不再单列。这份 PDF 的工单信息多写开始时间、结束时间。售后不在报销单上再选工单。关联申请单、事由、报销凭证如果表单上已经有，保持原样。</p>
         <table>
           <thead><tr><th>字段</th><th>汇联易控件</th><th>messageKey</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。上传时 <code>entityType=1002</code>，<code>fieldCode</code> 用这个控件的编码。</td></tr>
+            <tr><td>工单信息附件</td><td>附件</td><td><code>attachment</code></td><td>允许 pdf。上传时 <code>entityType=1002</code>，<code>fieldCode</code> 用这个控件的编码。PDF 含开始时间、结束时间，不含照片和视频。</td></tr>
+            <tr><td>现场照片/视频</td><td>附件</td><td><code>attachment</code></td><td>允许图片和视频。编码不能和上一行相同。</td></tr>
             <tr><td>打卡记录附件</td><td>附件</td><td><code>attachment</code></td><td>允许 xls、xlsx。必须是另一个附件控件，编码和上面的不同。</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:12px">售后提交后，汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/expense-report/submit.html" target="_blank" rel="noopener"><code>EXPENSE_REPORT_SUBMIT</code></a>。解开后的正文是<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/query-expense-report-detail.html" target="_blank" rel="noopener">报销单详情</a>。有工单号时，用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>把两份文件分别传到两个附件字段。没有工单号则什么都不传。</p>
+        <p style="margin-top:12px">售后提交后，汇联易回调 <a href="https://opendocs.huilianyi.com/callback/business-data/expense-report/submit.html" target="_blank" rel="noopener"><code>EXPENSE_REPORT_SUBMIT</code></a>。解开后的正文是<a href="https://opendocs.huilianyi.com/implement/business-data/expense-report/query-expense-report-detail.html" target="_blank" rel="noopener">报销单详情</a>。有工单号时，用<a href="https://opendocs.huilianyi.com/implement/business-data/attachment/upload-bill-attachment-batch.html" target="_blank" rel="noopener">单据附件批量上传</a>把 PDF、现场照片/视频、打卡 Excel 分别传到三个附件字段。没有工单号则什么都不传。</p>
       </div>
       <div class="docs" id="writeback">
         <h2>提交后怎么知道要回填</h2>
@@ -420,12 +464,12 @@ a:hover{text-decoration:underline}
       <div>
         <div class="tpl-view" id="tpl-pdf-sample">
           <h2>工单信息 PDF 样例</h2>
-          <p>申请单和报销单共用这一版。文件名是「工单信息_工单号_差旅申请单号」，报销单上也不改用报销单号。<a href="samples/工单信息_GD20260001_TA00000001.pdf" target="_blank" rel="noopener">新窗口打开</a></p>
+          <p>文件名是「工单信息_工单号_差旅申请单号」，报销单上也不改用报销单号。样例共两页：第 1 页是差旅申请单，第 2 页是差旅报销单。报销单在工单信息里多了开始时间、结束时间，单据号写报销单号。设备表有过保状态。现场照片和视频不在 PDF 里。两页各自是一份一页的附件，所以页脚都写第 1 页 / 共 1 页。<a href="samples/工单信息_GD20260001_TA00000001.pdf" target="_blank" rel="noopener">新窗口打开</a></p>
           <iframe class="pdf-frame" src="samples/工单信息_GD20260001_TA00000001.pdf" title="工单信息 PDF 样例"></iframe>
         </div>
         <div class="tpl-view hidden" id="tpl-pdf-blank">
           <h2>工单信息 PDF 模板</h2>
-          <p>空白版式，用来对字段位置。<a href="samples/工单信息PDF模板.pdf" target="_blank" rel="noopener">新窗口打开</a></p>
+          <p>空白版式，用来对字段位置。开始时间、结束时间那一行只在差旅报销单出现。设备表含过保状态。<a href="samples/工单信息PDF模板.pdf" target="_blank" rel="noopener">新窗口打开</a></p>
           <iframe class="pdf-frame" src="samples/工单信息PDF模板.pdf" title="工单信息 PDF 模板"></iframe>
         </div>
         <div class="tpl-view hidden" id="tpl-xls-yes">
@@ -505,14 +549,14 @@ document.getElementById('work-order').addEventListener('change',render);
 document.getElementById('linked-application').addEventListener('change',render);
 document.getElementById('travel-submit').addEventListener('click',()=>{
   const selected=document.getElementById('work-order').value;
-  showToast(selected?'已提交。系统收到提交回调后，把 PDF 挂到该申请单的「工单信息附件」':'已提交。未选工单，不生成附件');
+  showToast(selected?'已提交。系统收到提交回调后，把 PDF 和现场照片/视频挂到该申请单':'已提交。未选工单，不生成附件');
   role='approver';
   render();
 });
 document.getElementById('open-samples').addEventListener('click',()=>showMenu('templates'));
 document.getElementById('expense-submit').addEventListener('click',()=>{
   const linked=document.getElementById('linked-application').value==='linked';
-  showToast(linked?'已提交。工单 PDF 和打卡 Excel 将挂到这张报销单':'已提交。申请单没有工单号，不生成附件');
+  showToast(linked?'已提交。工单 PDF、现场照片/视频和打卡 Excel 将挂到这张报销单':'已提交。申请单没有工单号，不生成附件');
   role='approver';
   render();
 });
